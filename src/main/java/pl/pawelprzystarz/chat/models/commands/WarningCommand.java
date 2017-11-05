@@ -14,17 +14,12 @@ public class WarningCommand implements Command {
 
         if(userModel.isPresent()){
             userModel.get().setWarnings(userModel.get().getWarnings()+1);
-            model.sendMessage("Użytkownik " + nickToWarning + " dostał/a swoje " + userModel.get().getWarnings() + " ostrzeżenie!");
+            userModel.get().sendMessagePacket("Użytkownik " + nickToWarning + " dostał/a swoje " + userModel.get().getWarnings() + " ostrzeżenie!");
             if(userModel.get().getWarnings() == 3){
-                try {
-                    userModel.get().getSession().close();
-                    model.sendMessage("Użytkownik " + nickToWarning + " został wyrzucony po 3 ostrzeżeniu!");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                userModel.get().sendCloseWindowPacket();
             }
         }else{
-            model.sendMessage("Taki user nie istnieje");
+            model.sendMessagePacket("Taki user nie istnieje");
         }
     }
 

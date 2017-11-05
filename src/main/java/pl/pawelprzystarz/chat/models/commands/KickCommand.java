@@ -13,14 +13,10 @@ public class KickCommand implements Command {
         Optional<UserModel> userModel = userList.stream().filter(s -> s.getNickname().equals(nickToKick)).findAny();
 
         if(userModel.isPresent()){
-            try {
-                userModel.get().getSession().close();
-                model.sendMessage("Użytkownik " + nickToKick + " został wykopany!");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            userModel.get().sendCloseWindowPacket();
+
         }else{
-            model.sendMessage("Taki user nie istnieje");
+            model.sendMessagePacket("Taki user nie istnieje");
         }
     }
 

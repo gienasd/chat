@@ -2,6 +2,7 @@ package pl.pawelprzystarz.chat.models;
 
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import pl.pawelprzystarz.chat.models.sockets.ChatSocket;
 
 import java.io.IOException;
 
@@ -9,11 +10,31 @@ public class UserModel {
     private String nickname;
     private WebSocketSession session;
     private int warnings;
+    private int privateMessages;
+    private int messages;
 
     public UserModel(WebSocketSession session){
         this.session = session;
         this.nickname = null;
         this.warnings = 0;
+        this.privateMessages = 0;
+        this.messages = 0;
+    }
+
+    public int getPrivateMessages() {
+        return privateMessages;
+    }
+
+    public void setPrivateMessages(int privateMessages) {
+        this.privateMessages = privateMessages;
+    }
+
+    public int getMessages() {
+        return messages;
+    }
+
+    public void setMessages(int messages) {
+        this.messages = messages;
     }
 
     public int getWarnings() {
@@ -58,9 +79,36 @@ public class UserModel {
         return result;
     }
 
-    public void sendMessage(String message) {
+    public void sendMessagePacket(String message) {
+            MessageModel messageModel = new MessageModel();
+            messageModel.setMessageType(MessageModel.MessageType.MESSAGE);
+            messageModel.setContext(message + "\n");
+
+            try {
+                session.sendMessage(new TextMessage(ChatSocket.GSON.toJson(messageModel)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+    public void sendDialogPacket(String message) {
+        MessageModel messageModel = new MessageModel();
+        messageModel.setMessageType(MessageModel.MessageType.OPEN_DIALOG);
+        messageModel.setContext(message + "\n");
+
         try {
-            session.sendMessage(new TextMessage(message + "\n"));
+            session.sendMessage(new TextMessage(ChatSocket.GSON.toJson(messageModel)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void sendCloseWindowPacket() {
+        MessageModel messageModel = new MessageModel();
+        messageModel.setMessageType(MessageModel.MessageType.CLOSE_WINDOW);
+
+        try {
+            session.sendMessage(new TextMessage(ChatSocket.GSON.toJson(messageModel)));
         } catch (IOException e) {
             e.printStackTrace();
         }
